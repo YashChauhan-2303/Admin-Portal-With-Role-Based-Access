@@ -15,8 +15,8 @@ const config = {
 
   // JWT Configuration
   jwt: {
-    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || 'your-super-secret-refresh-key-change-this-in-production',
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
     accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m',
     refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d'
   },

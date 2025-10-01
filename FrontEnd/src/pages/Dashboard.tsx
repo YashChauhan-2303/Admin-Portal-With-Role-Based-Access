@@ -36,7 +36,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'Active' | 'Inactive'>('all');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'Public' | 'Private' | 'Community'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'public' | 'private' | 'community'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'location' | 'type' | 'createdAt'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   
@@ -72,8 +72,9 @@ const Dashboard = () => {
   // Filter and sort universities
   const filteredAndSortedUniversities = useMemo(() => {
     const filtered = universities.filter(university => {
+      const locationString = `${university.location.city}, ${university.location.state}, ${university.location.country}`;
       const matchesSearch = university.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           university.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           locationString.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (university.description && university.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = statusFilter === 'all' || (university.status && university.status === statusFilter);
       const matchesType = typeFilter === 'all' || university.type === typeFilter;
@@ -81,14 +82,19 @@ const Dashboard = () => {
     });
 
     filtered.sort((a, b) => {
-      let aValue: string | number = a[sortBy];
-      let bValue: string | number = b[sortBy];
+      let aValue: string | number = a[sortBy as keyof University];
+      let bValue: string | number = b[sortBy as keyof University];
+      
+      if (sortBy === 'location') {
+        aValue = `${a.location.city}, ${a.location.state}`;
+        bValue = `${b.location.city}, ${b.location.state}`;
+      }
       
       if (sortBy === 'createdAt') {
         aValue = new Date(aValue as string).getTime();
         bValue = new Date(bValue as string).getTime();
-      } else {
-        aValue = (aValue as string).toLowerCase();
+      } else if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
         bValue = (bValue as string).toLowerCase();
       }
       
@@ -125,17 +131,30 @@ const Dashboard = () => {
     if (!selectedUniversity) return;
     
     try {
-      const updateData: UpdateUniversityData = { ...data, id: selectedUniversity.id };
+      console.log('Updating university with data:', data);
+      const updateData: UpdateUniversityData = { ...data, _id: selectedUniversity._id };
       const updatedUniversity = await mockApi.updateUniversity(updateData);
-      setUniversities(prev => prev.map(u => u.id === updatedUniversity.id ? updatedUniversity : u));
+      setUniversities(prev => prev.map(u => u._id === updatedUniversity._id ? updatedUniversity : u));
       toast({
         title: 'Success',
         description: 'University updated successfully',
       });
     } catch (error) {
+      console.error('Update error:', error);
+      let errorMessage = 'Failed to update university';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // Try to extract more detailed error information
+        if ((error as any).errors) {
+          const validationErrors = Object.values((error as any).errors).join(', ');
+          errorMessage = `Validation failed: ${validationErrors}`;
+        }
+      }
+      
       toast({
         title: 'Error',
-        description: 'Failed to update university',
+        description: errorMessage,
         variant: 'destructive',
       });
       throw error;
@@ -147,8 +166,8 @@ const Dashboard = () => {
     
     try {
       setIsDeleting(true);
-      await mockApi.deleteUniversity(universityToDelete.id);
-      setUniversities(prev => prev.filter(u => u.id !== universityToDelete.id));
+      await mockApi.deleteUniversity(universityToDelete._id);
+      setUniversities(prev => prev.filter(u => u._id !== universityToDelete._id));
       toast({
         title: 'Success',
         description: 'University deleted successfully',
@@ -295,15 +314,15 @@ const Dashboard = () => {
                     </SelectContent>
                   </Select>
                   
-                  <Select value={typeFilter} onValueChange={(value: 'all' | 'Public' | 'Private') => setTypeFilter(value)}>
+                  <Select value={typeFilter} onValueChange={(value: 'all' | 'public' | 'private' | 'community') => setTypeFilter(value)}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="Public">Public</SelectItem>
-                      <SelectItem value="Private">Private</SelectItem>
-                      <SelectItem value="Community">Community</SelectItem>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="private">Private</SelectItem>
+                      <SelectItem value="community">Community</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -358,18 +377,18 @@ const Dashboard = () => {
                   </thead>
                   <tbody>
                     {filteredAndSortedUniversities.map((university) => (
-                      <tr key={university.id} className="border-b hover:bg-muted/30 transition-colors">
+                      <tr key={university._id} className="border-b hover:bg-muted/30 transition-colors">
                         <td className="p-4">
                           <div className="font-medium text-foreground">{university.name}</div>
                         </td>
                         <td className="p-4">
                           <div className="flex items-center space-x-1 text-muted-foreground">
                             <MapPin className="w-4 h-4" />
-                            <span>{university.location}</span>
+                            <span>{`${university.location.city}, ${university.location.state}`}</span>
                           </div>
                         </td>
                         <td className="p-4">
-                          <Badge variant="outline">{university.type}</Badge>
+                          <Badge variant="outline" className="capitalize">{university.type}</Badge>
                         </td>
                         <td className="p-4">
                           <div className="flex items-center space-x-1 text-muted-foreground">
@@ -382,7 +401,7 @@ const Dashboard = () => {
                             variant={university.status === 'Active' ? 'default' : 'secondary'}
                             className={university.status === 'Active' ? 'bg-success' : ''}
                           >
-                            {university.status || 'Unknown'}
+                            {university.status || 'Active'}
                           </Badge>
                         </td>
                         {isAdmin && (

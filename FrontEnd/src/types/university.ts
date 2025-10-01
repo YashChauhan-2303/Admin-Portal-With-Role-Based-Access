@@ -1,35 +1,108 @@
 export interface University {
-  id: number;
+  _id: string;
+  id?: string; // For backward compatibility
   name: string;
-  location: string;
-  established: number;
-  type: 'Public' | 'Private';
-  studentCount: number;
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    zipCode?: string;
+    address?: string;
+    coordinates?: [number, number]; // [longitude, latitude]
+  };
+  founded?: number; // Backend uses 'founded'
+  established?: number; // For backward compatibility
+  type: 'public' | 'private' | 'community';
+  enrollment: {
+    undergraduate: number;
+    graduate: number;
+    total: number;
+  };
   website?: string;
   description?: string;
-  programs?: string[];
-  ranking?: number;
+  accreditation?: {
+    agencies?: string[];
+    status: 'accredited' | 'candidate' | 'not_accredited' | 'unknown';
+    lastReview?: Date;
+  };
+  rankings?: {
+    national?: number;
+    global?: number;
+    subject?: Record<string, number>;
+  };
+  programs?: {
+    undergraduate?: string[];
+    graduate?: string[];
+    doctoral?: string[];
+    degrees?: string[];
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    fax?: string;
+    admissions?: {
+      phone?: string;
+      email?: string;
+    };
+  };
   status?: 'Active' | 'Inactive'; // Optional since backend may not have this field
   createdAt: string;
   updatedAt: string;
-  createdBy?: number;
-  updatedBy?: number;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 export interface CreateUniversityData extends Record<string, unknown> {
   name: string;
-  location: string;
-  established: number;
-  type: 'Public' | 'Private';
-  studentCount: number;
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    zipCode?: string;
+    address?: string;
+    coordinates?: [number, number]; // [longitude, latitude]
+  };
+  founded?: number; // Backend uses 'founded'
+  established?: number; // For backward compatibility
+  type: 'public' | 'private' | 'community';
+  enrollment: {
+    undergraduate: number;
+    graduate: number;
+    total: number;
+  };
   website?: string;
   description?: string;
-  programs?: string[];
-  ranking?: number;
+  accreditation?: {
+    agencies?: string[];
+    status: 'accredited' | 'candidate' | 'not_accredited' | 'unknown';
+    lastReview?: Date;
+  };
+  rankings?: {
+    national?: number;
+    global?: number;
+    subject?: Record<string, number>;
+  };
+  programs?: {
+    undergraduate?: string[];
+    graduate?: string[];
+    doctoral?: string[];
+    degrees?: string[];
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    fax?: string;
+    admissions?: {
+      phone?: string;
+      email?: string;
+    };
+  };
 }
 
 export interface UpdateUniversityData extends Partial<CreateUniversityData> {
-  id: number;
+  _id: string;
 }
 
 // API Response types for universities
@@ -62,10 +135,10 @@ export interface UniversityStats {
 // Search and filter types
 export interface UniversityFilters {
   search?: string;
-  type?: 'Public' | 'Private';
+  type?: 'public' | 'private' | 'community';
   location?: string;
-  minStudentCount?: number;
-  maxStudentCount?: number;
+  minEnrollment?: number;
+  maxEnrollment?: number;
   minEstablished?: number;
   maxEstablished?: number;
   programs?: string;

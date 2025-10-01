@@ -45,14 +45,7 @@ const Login = () => {
     }));
   };
 
-  const fillDemoCredentials = (role: 'admin' | 'viewer') => {
-    const credentials = {
-      admin: { email: 'admin@university.com', password: 'admin123' },
-      viewer: { email: 'viewer@university.com', password: 'viewer123' }
-    };
-    setFormData(credentials[role]);
-    setError('');
-  };
+
 
   if (isLoading) {
     return (
@@ -142,31 +135,6 @@ const Login = () => {
                 )}
               </Button>
             </form>
-
-            {/* Demo Credentials */}
-            <div className="space-y-3 pt-4 border-t">
-              <p className="text-sm text-center text-muted-foreground">Demo Credentials</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillDemoCredentials('admin')}
-                  className="text-xs"
-                >
-                  Admin
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillDemoCredentials('viewer')}
-                  className="text-xs"
-                >
-                  Viewer
-                </Button>
-              </div>
-            </div>
           </CardContent>
         </Card>
 

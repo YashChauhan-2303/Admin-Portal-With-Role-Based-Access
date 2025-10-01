@@ -4,7 +4,7 @@ const config = require('../config');
 // Encrypt data
 const encrypt = (text) => {
   const algorithm = 'aes-256-gcm';
-  const key = crypto.scryptSync(config.jwt.secret, 'salt', 32);
+  const key = crypto.scryptSync(config.jwt.accessTokenSecret, 'salt', 32);
   const iv = crypto.randomBytes(16);
   
   const cipher = crypto.createCipher(algorithm, key, iv);
@@ -24,7 +24,7 @@ const encrypt = (text) => {
 // Decrypt data
 const decrypt = (encryptedData) => {
   const algorithm = 'aes-256-gcm';
-  const key = crypto.scryptSync(config.jwt.secret, 'salt', 32);
+  const key = crypto.scryptSync(config.jwt.accessTokenSecret, 'salt', 32);
   
   const decipher = crypto.createDecipher(
     algorithm, 
@@ -51,12 +51,12 @@ const generateSecureToken = (length = 32) => {
 };
 
 // Generate HMAC signature
-const generateHMAC = (data, secret = config.jwt.secret) => {
+const generateHMAC = (data, secret = config.jwt.accessTokenSecret) => {
   return crypto.createHmac('sha256', secret).update(data).digest('hex');
 };
 
 // Verify HMAC signature
-const verifyHMAC = (data, signature, secret = config.jwt.secret) => {
+const verifyHMAC = (data, signature, secret = config.jwt.accessTokenSecret) => {
   const expectedSignature = generateHMAC(data, secret);
   return crypto.timingSafeEqual(
     Buffer.from(signature, 'hex'),

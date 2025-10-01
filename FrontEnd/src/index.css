@@ -52,6 +52,12 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* Admin-specific design tokens for light mode */
+    --admin-gradient: linear-gradient(135deg, hsl(var(--primary)), hsl(217 91% 70%));
+    --shadow-soft: 0 4px 12px -3px hsl(var(--primary) / 0.1);
+    --shadow-medium: 0 8px 25px -5px hsl(var(--primary) / 0.15);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -127,5 +133,23 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-admin-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(217 91% 70%));
+  }
+  
+  .shadow-soft {
+    box-shadow: 0 4px 12px -3px hsl(var(--primary) / 0.1);
+  }
+  
+  .shadow-medium {
+    box-shadow: 0 8px 25px -5px hsl(var(--primary) / 0.15);
+  }
+  
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }

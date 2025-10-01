@@ -23,10 +23,25 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<CreateUniversityData>({
     name: '',
-    location: '',
-    type: 'Public',
-    contact: '',
-    status: 'Active'
+    location: {
+      city: '',
+      state: '',
+      country: '',
+      coordinates: [0, 0]
+    },
+    founded: new Date().getFullYear(),
+    type: 'public',
+    enrollment: {
+      undergraduate: 0,
+      graduate: 0,
+      total: 0
+    },
+    website: '',
+    description: '',
+    contact: {
+      email: '',
+      phone: ''
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,17 +50,38 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
       setFormData({
         name: university.name,
         location: university.location,
+        founded: university.founded || university.established || new Date().getFullYear(),
         type: university.type,
-        contact: university.contact,
-        status: university.status
+        enrollment: university.enrollment,
+        website: university.contact?.website || university.website || '',
+        description: university.description || '',
+        contact: {
+          email: university.contact?.email || '',
+          phone: university.contact?.phone || ''
+        }
       });
     } else {
       setFormData({
         name: '',
-        location: '',
-        type: 'Public',
-        contact: '',
-        status: 'Active'
+        location: {
+          city: '',
+          state: '',
+          country: '',
+          coordinates: [0, 0]
+        },
+        founded: new Date().getFullYear(),
+        type: 'public',
+        enrollment: {
+          undergraduate: 0,
+          graduate: 0,
+          total: 0
+        },
+        website: '',
+        description: '',
+        contact: {
+          email: '',
+          phone: ''
+        }
       });
     }
   }, [university, mode, isOpen]);
@@ -55,7 +91,53 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      await onSubmit(formData);
+      // Create a copy without id fields (they're in the URL)
+      const { id, _id, ...dataWithoutIds } = formData;
+      
+      // Helper function to remove empty strings and undefined values
+      const cleanObject = (obj: any): any => {
+        if (Array.isArray(obj)) {
+          return obj.filter(item => item !== '' && item !== null && item !== undefined);
+        }
+        if (obj && typeof obj === 'object') {
+          const cleaned: any = {};
+          Object.keys(obj).forEach(key => {
+            const value = obj[key];
+            if (value === '' || value === null || value === undefined) {
+              return; // Skip empty values
+            }
+            if (typeof value === 'object') {
+              const cleanedValue = cleanObject(value);
+              if (Object.keys(cleanedValue).length > 0 || Array.isArray(cleanedValue)) {
+                cleaned[key] = cleanedValue;
+              }
+            } else {
+              cleaned[key] = value;
+            }
+          });
+          return cleaned;
+        }
+        return obj;
+      };
+      
+      // Transform data to match backend schema
+      const submitData: any = {
+        ...dataWithoutIds,
+        contact: {
+          ...formData.contact,
+          website: formData.website // Move website under contact
+        }
+      };
+      
+      // Remove website from top level if it exists
+      delete submitData.website;
+      
+      // Clean the data to remove empty strings
+      const cleanedData = cleanObject(submitData);
+      
+      console.log('Submitting data:', JSON.stringify(cleanedData, null, 2));
+      
+      await onSubmit(cleanedData);
       onClose();
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -65,10 +147,51 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    const { name, value } = e.target;
+    
+    if (name.startsWith('location.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        location: {
+          ...prev.location,
+          [field]: value
+        }
+      }));
+    } else if (name.startsWith('enrollment.')) {
+      const field = name.split('.')[1];
+      const numValue = parseInt(value) || 0;
+      setFormData(prev => ({
+        ...prev,
+        enrollment: {
+          ...prev.enrollment,
+          [field]: numValue,
+          ...(field === 'undergraduate' || field === 'graduate' ? {
+            total: (field === 'undergraduate' ? numValue : prev.enrollment.undergraduate) + 
+                   (field === 'graduate' ? numValue : prev.enrollment.graduate)
+          } : {})
+        }
+      }));
+    } else if (name.startsWith('contact.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        contact: {
+          ...prev.contact,
+          [field]: value
+        }
+      }));
+    } else if (name === 'founded') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: parseInt(value) || new Date().getFullYear()
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSelectChange = (field: keyof CreateUniversityData, value: string) => {
@@ -100,62 +223,136 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="location.city">City</Label>
+              <Input
+                id="location.city"
+                name="location.city"
+                value={formData.location.city}
+                onChange={handleInputChange}
+                placeholder="Enter city"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location.state">State</Label>
+              <Input
+                id="location.state"
+                name="location.state"
+                value={formData.location.state}
+                onChange={handleInputChange}
+                placeholder="Enter state"
+                required
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location.country">Country</Label>
             <Input
-              id="location"
-              name="location"
-              value={formData.location}
+              id="location.country"
+              name="location.country"
+              value={formData.location.country}
               onChange={handleInputChange}
-              placeholder="Enter location"
+              placeholder="Enter country"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) => handleSelectChange('type', value as 'Public' | 'Private' | 'Community')}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Public">Public</SelectItem>
-                <SelectItem value="Private">Private</SelectItem>
-                <SelectItem value="Community">Community</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="founded">Founded Year</Label>
+              <Input
+                id="founded"
+                name="founded"
+                type="number"
+                value={formData.founded}
+                onChange={handleInputChange}
+                placeholder="Enter year"
+                min="1000"
+                max={new Date().getFullYear()}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="type">Type</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => handleSelectChange('type', value as 'public' | 'private' | 'community')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">Public</SelectItem>
+                  <SelectItem value="private">Private</SelectItem>
+                  <SelectItem value="community">Community</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="enrollment.undergraduate">Undergraduate Students</Label>
+              <Input
+                id="enrollment.undergraduate"
+                name="enrollment.undergraduate"
+                type="number"
+                value={formData.enrollment.undergraduate}
+                onChange={handleInputChange}
+                placeholder="Enter count"
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="enrollment.graduate">Graduate Students</Label>
+              <Input
+                id="enrollment.graduate"
+                name="enrollment.graduate"
+                type="number"
+                value={formData.enrollment.graduate}
+                onChange={handleInputChange}
+                placeholder="Enter count"
+                min="0"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="contact">Contact</Label>
+            <Label htmlFor="website">Website</Label>
             <Input
-              id="contact"
-              name="contact"
+              id="website"
+              name="website"
+              type="url"
+              value={formData.website}
+              onChange={handleInputChange}
+              placeholder="Enter website URL"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contact.email">Contact Email</Label>
+            <Input
+              id="contact.email"
+              name="contact.email"
               type="email"
-              value={formData.contact}
+              value={formData.contact?.email || ''}
               onChange={handleInputChange}
               placeholder="Enter contact email"
-              required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              value={formData.status}
-              onValueChange={(value) => handleSelectChange('status', value as 'Active' | 'Inactive')}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter description"
+            />
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

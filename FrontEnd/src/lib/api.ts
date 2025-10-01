@@ -68,6 +68,18 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
+        // Log the full error for debugging with stringification
+        console.error('API Error Response:', JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        }, null, 2));
+        
+        // Extract detailed validation errors if available
+        if (data.errors) {
+          console.error('Validation Errors:', JSON.stringify(data.errors, null, 2));
+        }
+        
         // Handle 401 (Unauthorized) - try to refresh token
         if (response.status === 401 && token) {
           const refreshed = await this.refreshToken();
@@ -85,6 +97,7 @@ class ApiClient {
             const retryData = await retryResponse.json();
             
             if (!retryResponse.ok) {
+              console.error('API Error Response:', retryData);
               throw new Error(retryData.message || 'Request failed');
             }
             return retryData;
@@ -95,6 +108,7 @@ class ApiClient {
             throw new Error('Session expired');
           }
         }
+        console.error('API Error Response:', data);
         throw new Error(data.message || 'Request failed');
       }
 

@@ -3,7 +3,8 @@
 export type UserRole = 'admin' | 'viewer';
 
 export interface User {
-  id: number;
+  _id: string;
+  id?: string; // For backward compatibility
   email: string;
   name: string;
   role: UserRole;
@@ -11,8 +12,8 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   lastLogin?: string;
-  createdBy?: number;
-  updatedBy?: number;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 export interface LoginData extends Record<string, unknown> {

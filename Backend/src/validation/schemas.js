@@ -13,29 +13,81 @@ const registerSchema = Joi.object({
   role: Joi.string().valid('admin', 'viewer').default('viewer')
 });
 
-// University validation schemas
+// University validation schemas - Updated for MongoDB
 const universityCreateSchema = Joi.object({
-  name: Joi.string().min(2).max(200).required(),
-  location: Joi.string().min(2).max(200).required(),
-  established: Joi.number().integer().min(800).max(new Date().getFullYear()).required(),
-  type: Joi.string().valid('Public', 'Private').required(),
-  studentCount: Joi.number().integer().min(1).max(1000000).required(),
-  website: Joi.string().uri().optional(),
-  description: Joi.string().min(10).max(1000).optional(),
-  programs: Joi.array().items(Joi.string().min(2).max(100)).min(1).optional(),
-  ranking: Joi.number().integer().min(1).max(10000).optional()
+  name: Joi.string().min(2).max(100).required(),
+  type: Joi.string().valid('public', 'private', 'community').required(),
+  location: Joi.object({
+    city: Joi.string().max(50).required(),
+    state: Joi.string().max(50).required(),
+    country: Joi.string().max(50).default('United States'),
+    zipCode: Joi.string().pattern(/^\d{5}(-\d{4})?$/).allow('').optional(),
+    address: Joi.string().max(200).allow('').optional(),
+    coordinates: Joi.array().items(Joi.number()).length(2).optional() // [longitude, latitude]
+  }).required(),
+  contact: Joi.object({
+    phone: Joi.string().pattern(/^\+?[\d\s\-\(\)]+$/).allow('').optional(),
+    email: Joi.string().email().allow('').optional(),
+    website: Joi.string().pattern(/^https?:\/\/.+/).allow('').optional(),
+    fax: Joi.string().allow('').optional()
+  }).optional(),
+  enrollment: Joi.object({
+    undergraduate: Joi.number().min(0).default(0),
+    graduate: Joi.number().min(0).default(0),
+    total: Joi.number().min(0).optional()
+  }).optional(),
+  founded: Joi.number().integer().min(1000).max(new Date().getFullYear()).optional(),
+  description: Joi.string().max(1000).allow('').optional(),
+  website: Joi.string().pattern(/^https?:\/\/.+/).allow('').optional(), // Support for legacy field
+  status: Joi.string().valid('active', 'inactive', 'pending', 'closed').default('active'),
+  accreditation: Joi.object().optional(),
+  rankings: Joi.object().optional(),
+  tuition: Joi.object().optional(),
+  programs: Joi.array().optional(),
+  facilities: Joi.object().optional(),
+  demographics: Joi.object().optional(),
+  socialMedia: Joi.object().optional(),
+  logo: Joi.string().optional(),
+  images: Joi.array().optional(),
+  tags: Joi.array().items(Joi.string()).optional()
 });
 
 const universityUpdateSchema = Joi.object({
-  name: Joi.string().min(2).max(200).optional(),
-  location: Joi.string().min(2).max(200).optional(),
-  established: Joi.number().integer().min(800).max(new Date().getFullYear()).optional(),
-  type: Joi.string().valid('Public', 'Private').optional(),
-  studentCount: Joi.number().integer().min(1).max(1000000).optional(),
-  website: Joi.string().uri().optional(),
-  description: Joi.string().min(10).max(1000).optional(),
-  programs: Joi.array().items(Joi.string().min(2).max(100)).min(1).optional(),
-  ranking: Joi.number().integer().min(1).max(10000).optional()
+  name: Joi.string().min(2).max(100).optional(),
+  type: Joi.string().valid('public', 'private', 'community').optional(),
+  location: Joi.object({
+    city: Joi.string().max(50).optional(),
+    state: Joi.string().max(50).optional(),
+    country: Joi.string().max(50).optional(),
+    zipCode: Joi.string().pattern(/^\d{5}(-\d{4})?$/).allow('').optional(),
+    address: Joi.string().max(200).allow('').optional(),
+    coordinates: Joi.array().items(Joi.number()).length(2).optional()
+  }).optional(),
+  contact: Joi.object({
+    phone: Joi.string().pattern(/^\+?[\d\s\-\(\)]+$/).allow('').optional(),
+    email: Joi.string().email().allow('').optional(),
+    website: Joi.string().pattern(/^https?:\/\/.+/).allow('').optional(),
+    fax: Joi.string().allow('').optional()
+  }).optional(),
+  enrollment: Joi.object({
+    undergraduate: Joi.number().min(0).optional(),
+    graduate: Joi.number().min(0).optional(),
+    total: Joi.number().min(0).optional()
+  }).optional(),
+  founded: Joi.number().integer().min(1000).max(new Date().getFullYear()).optional(),
+  description: Joi.string().max(1000).allow('').optional(),
+  website: Joi.string().pattern(/^https?:\/\/.+/).allow('').optional(), // Support for legacy field
+  status: Joi.string().valid('active', 'inactive', 'pending', 'closed').optional(),
+  accreditation: Joi.object().optional(),
+  rankings: Joi.object().optional(),
+  tuition: Joi.object().optional(),
+  programs: Joi.array().optional(),
+  facilities: Joi.object().optional(),
+  demographics: Joi.object().optional(),
+  socialMedia: Joi.object().optional(),
+  logo: Joi.string().optional(),
+  images: Joi.array().optional(),
+  tags: Joi.array().items(Joi.string()).optional()
 }).min(1); // At least one field must be provided
 
 // User validation schemas
@@ -67,7 +119,9 @@ const paginationSchema = Joi.object({
 });
 
 const idParamSchema = Joi.object({
-  id: Joi.number().integer().min(1).required()
+  id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required().messages({
+    'string.pattern.base': 'Invalid MongoDB ObjectId format'
+  })
 });
 
 module.exports = {
