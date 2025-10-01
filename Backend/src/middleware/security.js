@@ -70,27 +70,38 @@ const securityConfig = helmet({
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, etc.)
-    if (!origin) return callback(null, true);
+    console.log('CORS Request from origin:', origin);
+    console.log('Allowed origins:', config.security.corsOrigins);
+    
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      console.log('CORS: Allowing request with no origin');
+      return callback(null, true);
+    }
     
     // Allow localhost on any port for development
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      console.log('CORS: Allowing localhost origin');
       return callback(null, true);
     }
     
     // Allow configured origins
     if (config.security.corsOrigins.includes(origin)) {
+      console.log('CORS: Allowing configured origin:', origin);
       return callback(null, true);
     }
     
     // Log rejected origin for debugging
-    console.log('CORS rejected origin:', origin);
+    console.log('CORS REJECTED origin:', origin);
+    console.log('Expected one of:', config.security.corsOrigins);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Length', 'Content-Type'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
   maxAge: 86400 // 24 hours
 };
 

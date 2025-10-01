@@ -89,4 +89,11 @@ const config = {
   }
 };
 
+// Log CORS configuration on startup for debugging
+console.log('=== CONFIG LOADED ===');
+console.log('CORS_ORIGINS env var:', process.env.CORS_ORIGINS);
+console.log('Parsed CORS origins:', config.security.corsOrigins);
+console.log('Frontend URL:', config.frontend.url);
+console.log('=====================');
+
 module.exports = config;

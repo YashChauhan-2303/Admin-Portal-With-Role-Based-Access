@@ -18,6 +18,12 @@ const userRoutes = require('./routes/users');
 const app = express();
 const PORT = config.server.port;
 
+// CORS configuration - MUST be before other middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
 // Security middleware
 app.use(securityConfig);
 
@@ -26,9 +32,6 @@ app.use(requestLogger);
 
 // Rate limiting
 app.use(generalLimiter);
-
-// CORS configuration
-app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
