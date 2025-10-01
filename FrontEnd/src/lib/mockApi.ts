@@ -1,122 +1,46 @@
-import { University, CreateUniversityData, UpdateUniversityData } from '@/types/university';
+import { University, CreateUniversityData, UpdateUniversityData, UniversitiesResponse } from '@/types/university';
+import { apiClient } from './api';
 
-// Mock data
-let universities: University[] = [
-  {
-    id: '1',
-    name: 'Stanford University',
-    location: 'Stanford, CA',
-    type: 'Private',
-    contact: 'admissions@stanford.edu',
-    status: 'Active',
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T10:00:00Z',
-  },
-  {
-    id: '2',
-    name: 'University of California, Berkeley',
-    location: 'Berkeley, CA',
-    type: 'Public',
-    contact: 'admissions@berkeley.edu',
-    status: 'Active',
-    createdAt: '2024-01-16T10:00:00Z',
-    updatedAt: '2024-01-16T10:00:00Z',
-  },
-  {
-    id: '3',
-    name: 'Harvard University',
-    location: 'Cambridge, MA',
-    type: 'Private',
-    contact: 'admissions@harvard.edu',
-    status: 'Active',
-    createdAt: '2024-01-17T10:00:00Z',
-    updatedAt: '2024-01-17T10:00:00Z',
-  },
-  {
-    id: '4',
-    name: 'Community College of Denver',
-    location: 'Denver, CO',
-    type: 'Community',
-    contact: 'info@ccd.edu',
-    status: 'Inactive',
-    createdAt: '2024-01-18T10:00:00Z',
-    updatedAt: '2024-01-18T10:00:00Z',
-  },
-  {
-    id: '5',
-    name: 'MIT',
-    location: 'Cambridge, MA',
-    type: 'Private',
-    contact: 'admissions@mit.edu',
-    status: 'Active',
-    createdAt: '2024-01-19T10:00:00Z',
-    updatedAt: '2024-01-19T10:00:00Z',
-  },
-];
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Mock API functions
+// Real API functions that connect to the backend
 export const mockApi = {
   async getUniversities(): Promise<University[]> {
-    await delay(300);
-    return [...universities];
+    const response = await apiClient.get<UniversitiesResponse>('/universities');
+    
+    if (response.success && response.data) {
+      return response.data.universities;
+    }
+    
+    throw new Error(response.message || 'Failed to fetch universities');
   },
 
   async createUniversity(data: CreateUniversityData): Promise<University> {
-    await delay(500);
+    const response = await apiClient.post<{ university: University }>('/universities', data);
     
-    const newUniversity: University = {
-      id: Date.now().toString(),
-      ...data,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    if (response.success && response.data) {
+      return response.data.university;
+    }
     
-    universities.push(newUniversity);
-    return newUniversity;
+    throw new Error(response.message || 'Failed to create university');
   },
 
   async updateUniversity(data: UpdateUniversityData): Promise<University> {
-    await delay(500);
+    const { id, ...updateData } = data;
+    const response = await apiClient.put<{ university: University }>(`/universities/${id}`, updateData);
     
-    const index = universities.findIndex(u => u.id === data.id);
-    if (index === -1) {
-      throw new Error('University not found');
+    if (response.success && response.data) {
+      return response.data.university;
     }
     
-    const updatedUniversity = {
-      ...universities[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    
-    universities[index] = updatedUniversity;
-    return updatedUniversity;
+    throw new Error(response.message || 'Failed to update university');
   },
 
-  async deleteUniversity(id: string): Promise<void> {
-    await delay(300);
+  async deleteUniversity(id: number): Promise<void> {
+    const response = await apiClient.delete(`/universities/${id}`);
     
-    const index = universities.findIndex(u => u.id === id);
-    if (index === -1) {
-      throw new Error('University not found');
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to delete university');
     }
-    
-    universities.splice(index, 1);
   },
 
-  async toggleUniversityStatus(id: string): Promise<University> {
-    await delay(300);
-    
-    const university = universities.find(u => u.id === id);
-    if (!university) {
-      throw new Error('University not found');
-    }
-    
-    university.status = university.status === 'Active' ? 'Inactive' : 'Active';
-    university.updatedAt = new Date().toISOString();
-    
-    return university;
-  },
+  // Note: toggleUniversityStatus has been removed as the backend doesn't support status field
 };

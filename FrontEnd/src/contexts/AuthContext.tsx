@@ -1,81 +1,91 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-export type UserRole = 'admin' | 'viewer';
-
-export interface User {
-  username: string;
-  role: UserRole;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  isLoading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Hardcoded users
-const USERS = {
-  admin: { username: 'admin', password: 'admin123', role: 'admin' as UserRole },
-  viewer: { username: 'viewer', password: 'viewer123', role: 'viewer' as UserRole },
-};
+import React, { useState, useEffect } from 'react';
+import { User, LoginData, AuthResponse } from '@/types/user';
+import { apiClient, handleApiError, tokenManager } from '@/lib/api';
+import { AuthContext, AuthContextType } from './AuthContextType';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check for existing authentication on app start
   useEffect(() => {
-    // Check for stored authentication
-    const storedUser = localStorage.getItem('auth_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        localStorage.removeItem('auth_user');
+    const initAuth = async () => {
+      const token = tokenManager.get();
+      if (token) {
+        try {
+          // Verify token and get user data
+          const response = await apiClient.get<{ user: User }>('/auth/me');
+          if (response.success && response.data) {
+            setUser(response.data.user);
+          } else {
+            // Invalid token, clear it
+            tokenManager.clear();
+          }
+        } catch (error) {
+          console.error('Auth verification failed:', error);
+          tokenManager.clear();
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (loginData: LoginData): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const userKey = username.toLowerCase() as keyof typeof USERS;
-    const userData = USERS[userKey];
-    
-    if (userData && userData.password === password) {
-      const authUser = { username: userData.username, role: userData.role };
-      setUser(authUser);
-      localStorage.setItem('auth_user', JSON.stringify(authUser));
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/login', loginData);
+      
+      if (response.success && response.data) {
+        const { user: userData, token, refreshToken } = response.data;
+        
+        // Store tokens
+        tokenManager.set(token, refreshToken);
+        
+        // Set user data
+        setUser(userData);
+        
+        setIsLoading(false);
+        return { success: true };
+      } else {
+        setIsLoading(false);
+        return { success: false, error: response.message || 'Login failed' };
+      }
+    } catch (error) {
       setIsLoading(false);
-      return true;
+      return { success: false, error: handleApiError(error) };
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('auth_user');
+  const logout = async () => {
+    try {
+      // Call logout endpoint to invalidate token on server
+      await apiClient.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout request failed:', error);
+    } finally {
+      // Clear local state regardless of server response
+      setUser(null);
+      tokenManager.clear();
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const response = await apiClient.get<{ user: User }>('/auth/me');
+      if (response.success && response.data) {
+        setUser(response.data.user);
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

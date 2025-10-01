@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { mockApi } from '@/lib/mockApi';
 import { University, CreateUniversityData, UpdateUniversityData } from '@/types/university';
 import { Button } from '@/components/ui/button';
@@ -48,12 +48,7 @@ const Dashboard = () => {
   const [universityToDelete, setUniversityToDelete] = useState<University | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Load universities
-  useEffect(() => {
-    loadUniversities();
-  }, []);
-
-  const loadUniversities = async () => {
+  const loadUniversities = useCallback(async () => {
     try {
       setLoading(true);
       const data = await mockApi.getUniversities();
@@ -67,15 +62,20 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  // Load universities
+  useEffect(() => {
+    loadUniversities();
+  }, [loadUniversities]);
 
   // Filter and sort universities
   const filteredAndSortedUniversities = useMemo(() => {
-    let filtered = universities.filter(university => {
+    const filtered = universities.filter(university => {
       const matchesSearch = university.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            university.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           university.contact.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || university.status === statusFilter;
+                           (university.description && university.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesStatus = statusFilter === 'all' || (university.status && university.status === statusFilter);
       const matchesType = typeFilter === 'all' || university.type === typeFilter;
       return matchesSearch && matchesStatus && matchesType;
     });
@@ -166,23 +166,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleToggleStatus = async (university: University) => {
-    try {
-      const updatedUniversity = await mockApi.toggleUniversityStatus(university.id);
-      setUniversities(prev => prev.map(u => u.id === updatedUniversity.id ? updatedUniversity : u));
-      toast({
-        title: 'Success',
-        description: `University ${updatedUniversity.status.toLowerCase()}`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update status',
-        variant: 'destructive',
-      });
-    }
-  };
-
   // Modal handlers
   const openCreateModal = () => {
     setModalMode('create');
@@ -243,7 +226,7 @@ const Dashboard = () => {
               <div className="flex items-center space-x-2 text-sm">
                 <div className="flex items-center space-x-1">
                   {isAdmin ? <Shield className="w-4 h-4 text-primary" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
-                  <span className="font-medium">{user?.username}</span>
+                  <span className="font-medium">{user?.name}</span>
                 </div>
                 <Badge variant={isAdmin ? "default" : "secondary"}>
                   {user?.role}
@@ -300,7 +283,7 @@ const Dashboard = () => {
                 
                 {/* Filters */}
                 <div className="flex gap-2">
-                  <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                  <Select value={statusFilter} onValueChange={(value: 'all' | 'Active' | 'Inactive') => setStatusFilter(value)}>
                     <SelectTrigger className="w-32">
                       <Filter className="w-4 h-4 mr-2" />
                       <SelectValue />
@@ -312,7 +295,7 @@ const Dashboard = () => {
                     </SelectContent>
                   </Select>
                   
-                  <Select value={typeFilter} onValueChange={(value: any) => setTypeFilter(value)}>
+                  <Select value={typeFilter} onValueChange={(value: 'all' | 'Public' | 'Private') => setTypeFilter(value)}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
@@ -391,31 +374,16 @@ const Dashboard = () => {
                         <td className="p-4">
                           <div className="flex items-center space-x-1 text-muted-foreground">
                             <Mail className="w-4 h-4" />
-                            <span className="text-sm">{university.contact}</span>
+                            <span className="text-sm">{university.website || 'No website'}</span>
                           </div>
                         </td>
                         <td className="p-4">
-                          {isAdmin ? (
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                checked={university.status === 'Active'}
-                                onCheckedChange={() => handleToggleStatus(university)}
-                              />
-                              <Badge
-                                variant={university.status === 'Active' ? 'default' : 'secondary'}
-                                className={university.status === 'Active' ? 'bg-success' : ''}
-                              >
-                                {university.status}
-                              </Badge>
-                            </div>
-                          ) : (
-                            <Badge
-                              variant={university.status === 'Active' ? 'default' : 'secondary'}
-                              className={university.status === 'Active' ? 'bg-success' : ''}
-                            >
-                              {university.status}
-                            </Badge>
-                          )}
+                          <Badge
+                            variant={university.status === 'Active' ? 'default' : 'secondary'}
+                            className={university.status === 'Active' ? 'bg-success' : ''}
+                          >
+                            {university.status || 'Unknown'}
+                          </Badge>
                         </td>
                         {isAdmin && (
                           <td className="p-4">

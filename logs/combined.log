@@ -1,0 +1,17 @@
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mInitializing cron jobs...\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAdded cron job: cleanup-sessions with schedule: 0 2 * * *\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAdded cron job: daily-stats with schedule: 0 1 * * *\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAdded cron job: backup-data with schedule: 0 3 * * *\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAdded cron job: health-check with schedule: */5 * * * *\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAdded cron job: cleanup-logs with schedule: 0 4 * * 0\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAdded cron job: weekly-report with schedule: 0 9 * * 1\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted cron job: cleanup-sessions\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted cron job: daily-stats\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted cron job: backup-data\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted cron job: health-check\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted cron job: cleanup-logs\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted cron job: weekly-report\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mStarted 6 cron jobs\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mAll cron jobs initialized and started\u001b[39m","timestamp":"2025-10-01 12:47:16:4716"}
+{"address":"::","code":"EADDRINUSE","errno":-4091,"level":"\u001b[31merror\u001b[39m","message":"\u001b[31mServer error: listen EADDRINUSE: address already in use :::3001\u001b[39m","port":3001,"stack":"Error: listen EADDRINUSE: address already in use :::3001\n    at Server.setupListenHandle [as _listen2] (node:net:1937:16)\n    at listenInCluster (node:net:1994:12)\n    at Server.listen (node:net:2099:7)\n    at Function.listen (C:\\Users\\yashc\\Desktop\\uni-manage-rbac\\Backend\\node_modules\\express\\lib\\application.js:635:24)\n    at Object.<anonymous> (C:\\Users\\yashc\\Desktop\\uni-manage-rbac\\Backend\\src\\server.js:78:20)\n    at Module._compile (node:internal/modules/cjs/loader:1562:14)\n    at Object..js (node:internal/modules/cjs/loader:1699:10)\n    at Module.load (node:internal/modules/cjs/loader:1313:32)\n    at Function._load (node:internal/modules/cjs/loader:1123:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)","syscall":"listen","timestamp":"2025-10-01 12:47:16:4716"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSIGINT received, shutting down gracefully...\u001b[39m","timestamp":"2025-10-01 12:47:31:4731"}

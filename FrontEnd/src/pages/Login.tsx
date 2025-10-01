@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, User, Lock } from 'lucide-react';
+import { Shield, Mail, Lock } from 'lucide-react';
 
 const Login = () => {
   const { user, login, isLoading } = useAuth();
   const location = useLocation();
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
   // Redirect if already logged in
   if (user) {
-    const from = (location.state as any)?.from?.pathname || '/dashboard';
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
     return <Navigate to={from} replace />;
   }
 
@@ -27,9 +27,9 @@ const Login = () => {
     setLoginLoading(true);
 
     try {
-      const success = await login(formData.username, formData.password);
-      if (!success) {
-        setError('Invalid username or password');
+      const result = await login(formData);
+      if (!result.success) {
+        setError(result.error || 'Login failed');
       }
     } catch (err) {
       setError('Login failed. Please try again.');
@@ -45,10 +45,11 @@ const Login = () => {
     }));
   };
 
-  const fillDemoCredentials = (role: 'admin' | 'viewer') => {
+  const fillDemoCredentials = (role: 'admin' | 'manager' | 'viewer') => {
     const credentials = {
-      admin: { username: 'admin', password: 'admin123' },
-      viewer: { username: 'viewer', password: 'viewer123' }
+      admin: { email: 'admin@university.com', password: 'admin123' },
+      manager: { email: 'manager@university.com', password: 'manager123' },
+      viewer: { email: 'viewer@university.com', password: 'viewer123' }
     };
     setFormData(credentials[role]);
     setError('');
@@ -94,16 +95,16 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-medium">Username</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={formData.username}
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="Enter username"
+                    placeholder="Enter email address"
                     className="pl-10"
                     required
                   />
@@ -146,7 +147,7 @@ const Login = () => {
             {/* Demo Credentials */}
             <div className="space-y-3 pt-4 border-t">
               <p className="text-sm text-center text-muted-foreground">Demo Credentials</p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -154,7 +155,16 @@ const Login = () => {
                   onClick={() => fillDemoCredentials('admin')}
                   className="text-xs"
                 >
-                  Admin Demo
+                  Admin
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fillDemoCredentials('manager')}
+                  className="text-xs"
+                >
+                  Manager
                 </Button>
                 <Button
                   type="button"
@@ -163,7 +173,7 @@ const Login = () => {
                   onClick={() => fillDemoCredentials('viewer')}
                   className="text-xs"
                 >
-                  Viewer Demo
+                  Viewer
                 </Button>
               </div>
             </div>
