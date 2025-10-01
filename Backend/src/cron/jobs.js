@@ -37,7 +37,6 @@ const generateDailyStats = async () => {
       active: users.filter(u => u.isActive).length,
       byRole: {
         admin: users.filter(u => u.role === 'admin').length,
-        manager: users.filter(u => u.role === 'manager').length,
         viewer: users.filter(u => u.role === 'viewer').length
       }
     },

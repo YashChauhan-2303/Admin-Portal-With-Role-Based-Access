@@ -15,22 +15,21 @@ const config = {
 
   // JWT Configuration
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || 'your-super-secret-refresh-key-change-this-in-production',
+    accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m',
+    refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d'
   },
 
   // Database Configuration
   database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT) || 5432,
-    name: process.env.DB_NAME || 'university_management',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    ssl: process.env.DB_SSL === 'true',
-    pool: {
-      min: parseInt(process.env.DB_POOL_MIN) || 2,
-      max: parseInt(process.env.DB_POOL_MAX) || 10
+    mongodb: {
+      uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/university_management',
+      name: process.env.DB_NAME || 'university_management',
+      options: {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      }
     }
   },
 

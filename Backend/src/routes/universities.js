@@ -48,22 +48,22 @@ router.get('/:id',
 
 // @desc    Create new university
 // @route   POST /api/universities
-// @access  Private (admin, manager)
+// @access  Private (admin only)
 router.post('/', 
   createLimiter,
   authenticateToken, 
-  authorize('admin', 'manager'),
+  authorize('admin'),
   validateBody(universityCreateSchema),
   universityController.createUniversity
 );
 
 // @desc    Update university
 // @route   PUT /api/universities/:id
-// @access  Private (admin, manager)
+// @access  Private (admin only)
 router.put('/:id', 
   createLimiter,
   authenticateToken, 
-  authorize('admin', 'manager'),
+  authorize('admin'),
   validateParams(idParamSchema),
   validateBody(universityUpdateSchema),
   universityController.updateUniversity

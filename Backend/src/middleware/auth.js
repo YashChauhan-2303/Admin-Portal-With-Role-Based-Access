@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const config = require('../config');
 const { asyncHandler } = require('./errorHandler');
 
 const authenticateToken = asyncHandler(async (req, res, next) => {
@@ -13,14 +14,29 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.jwt.accessTokenSecret);
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Invalid or expired token' 
-    });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Access token has expired',
+        code: 'TOKEN_EXPIRED'
+      });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Invalid access token',
+        code: 'INVALID_TOKEN'
+      });
+    } else {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Token verification failed',
+        code: 'TOKEN_ERROR'
+      });
+    }
   }
 });
 

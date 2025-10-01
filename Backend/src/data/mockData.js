@@ -14,23 +14,13 @@ const users = [
   },
   {
     id: 2,
-    email: 'manager@university.com',
-    password: '$2a$12$o1LEXuQ75hKh3h7aMCeXeO28A7Rk3Ei0lLb2iBi/ZWVY2Oxg2eZkW', // password: manager123
-    name: 'University Manager',
-    role: 'manager',
-    isActive: true,
-    createdAt: '2024-01-02T00:00:00Z',
-    updatedAt: '2024-01-02T00:00:00Z'
-  },
-  {
-    id: 3,
     email: 'viewer@university.com',
     password: '$2a$12$L/FigSGYdazk5aPxuxnJje1IlD81F59nw8StV.h4wYI5/.6K9FR8y', // password: viewer123
     name: 'Data Viewer',
     role: 'viewer',
     isActive: true,
-    createdAt: '2024-01-03T00:00:00Z',
-    updatedAt: '2024-01-03T00:00:00Z'
+    createdAt: '2024-01-02T00:00:00Z',
+    updatedAt: '2024-01-02T00:00:00Z'
   }
 ];
 
@@ -121,15 +111,6 @@ const roles = {
       'universities:create',
       'universities:update',
       'universities:delete'
-    ]
-  },
-  manager: {
-    name: 'Manager',
-    permissions: [
-      'users:read',
-      'universities:read',
-      'universities:create',
-      'universities:update'
     ]
   },
   viewer: {

@@ -45,10 +45,9 @@ const Login = () => {
     }));
   };
 
-  const fillDemoCredentials = (role: 'admin' | 'manager' | 'viewer') => {
+  const fillDemoCredentials = (role: 'admin' | 'viewer') => {
     const credentials = {
       admin: { email: 'admin@university.com', password: 'admin123' },
-      manager: { email: 'manager@university.com', password: 'manager123' },
       viewer: { email: 'viewer@university.com', password: 'viewer123' }
     };
     setFormData(credentials[role]);
@@ -147,7 +146,7 @@ const Login = () => {
             {/* Demo Credentials */}
             <div className="space-y-3 pt-4 border-t">
               <p className="text-sm text-center text-muted-foreground">Demo Credentials</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -156,15 +155,6 @@ const Login = () => {
                   className="text-xs"
                 >
                   Admin
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillDemoCredentials('manager')}
-                  className="text-xs"
-                >
-                  Manager
                 </Button>
                 <Button
                   type="button"
@@ -179,6 +169,19 @@ const Login = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sign Up Link */}
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <a 
+              href="/signup" 
+              className="font-medium text-primary hover:underline"
+            >
+              Sign up here
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

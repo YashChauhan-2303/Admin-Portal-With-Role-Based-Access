@@ -1,6 +1,6 @@
 // User types for authentication and user management
 
-export type UserRole = 'admin' | 'manager' | 'viewer';
+export type UserRole = 'admin' | 'viewer';
 
 export interface User {
   id: number;
@@ -20,7 +20,7 @@ export interface LoginData extends Record<string, unknown> {
   password: string;
 }
 
-export interface RegisterData {
+export interface RegisterData extends Record<string, unknown> {
   email: string;
   password: string;
   name: string;
@@ -57,7 +57,6 @@ export interface UserStats {
   inactiveUsers: number;
   roleDistribution: {
     admin: number;
-    manager: number;
     viewer: number;
   };
   recentlyCreated: number;
@@ -84,7 +83,6 @@ export interface UserResponse {
 // Permissions mapping
 export interface RolePermissions {
   admin: string[];
-  manager: string[];
   viewer: string[];
 }
 
@@ -98,12 +96,6 @@ export const ROLE_PERMISSIONS: RolePermissions = {
     'universities:create',
     'universities:update',
     'universities:delete'
-  ],
-  manager: [
-    'users:read',
-    'universities:read',
-    'universities:create',
-    'universities:update'
   ],
   viewer: [
     'universities:read'

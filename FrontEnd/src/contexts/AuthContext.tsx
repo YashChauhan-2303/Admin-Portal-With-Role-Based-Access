@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, LoginData, AuthResponse } from '@/types/user';
+import { User, LoginData, RegisterData, AuthResponse } from '@/types/user';
 import { apiClient, handleApiError, tokenManager } from '@/lib/api';
 import { AuthContext, AuthContextType } from './AuthContextType';
 
@@ -59,6 +59,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (registerData: RegisterData): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/register', registerData);
+      
+      if (response.success && response.data) {
+        const { user: userData, token, refreshToken } = response.data;
+        
+        // Store tokens
+        tokenManager.set(token, refreshToken);
+        
+        // Set user data
+        setUser(userData);
+        
+        setIsLoading(false);
+        return { success: true };
+      } else {
+        setIsLoading(false);
+        return { success: false, error: response.message || 'Registration failed' };
+      }
+    } catch (error) {
+      setIsLoading(false);
+      return { success: false, error: handleApiError(error) };
+    }
+  };
+
   const logout = async () => {
     try {
       // Call logout endpoint to invalidate token on server
@@ -84,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, refreshUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

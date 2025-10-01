@@ -15,8 +15,8 @@ const generateToken = (user) => {
       role: user.role,
       name: user.name 
     },
-    config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
+    config.jwt.accessTokenSecret,
+    { expiresIn: config.jwt.accessTokenExpiresIn }
   );
 };
 
@@ -24,8 +24,8 @@ const generateToken = (user) => {
 const generateRefreshToken = (user) => {
   return jwt.sign(
     { id: user.id },
-    config.jwt.secret,
-    { expiresIn: config.jwt.refreshExpiresIn }
+    config.jwt.refreshTokenSecret,
+    { expiresIn: config.jwt.refreshTokenExpiresIn }
   );
 };
 
@@ -59,8 +59,8 @@ const register = async (req, res, next) => {
       users.push(newUser);
 
       // Generate tokens
-      const token = this.generateToken(newUser);
-      const refreshToken = this.generateRefreshToken(newUser);
+      const token = generateToken(newUser);
+      const refreshToken = generateRefreshToken(newUser);
 
       // Remove password from response
       const { password: _, ...userResponse } = newUser;
@@ -152,7 +152,7 @@ const refreshToken = async (req, res, next) => {
       }
 
       // Verify refresh token
-      const decoded = jwt.verify(refreshToken, config.jwt.secret);
+      const decoded = jwt.verify(refreshToken, config.jwt.refreshTokenSecret);
       const user = users.find(user => user.id === decoded.id);
 
       if (!user || !user.isActive) {

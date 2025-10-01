@@ -10,7 +10,7 @@ const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   name: Joi.string().min(2).max(50).required(),
-  role: Joi.string().valid('admin', 'manager', 'viewer').default('viewer')
+  role: Joi.string().valid('admin', 'viewer').default('viewer')
 });
 
 // University validation schemas
@@ -43,13 +43,13 @@ const userCreateSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).max(128).required(),
   name: Joi.string().min(2).max(100).required(),
-  role: Joi.string().valid('admin', 'manager', 'viewer').default('viewer')
+  role: Joi.string().valid('admin', 'viewer').default('viewer')
 });
 
 const userUpdateSchema = Joi.object({
   email: Joi.string().email().optional(),
   name: Joi.string().min(2).max(100).optional(),
-  role: Joi.string().valid('admin', 'manager', 'viewer').optional()
+  role: Joi.string().valid('admin', 'viewer').optional()
 }).min(1); // At least one field must be provided
 
 const passwordUpdateSchema = Joi.object({
