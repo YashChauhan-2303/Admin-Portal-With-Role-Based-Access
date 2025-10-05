@@ -24,10 +24,9 @@ A full-stack web application for managing university data with secure role-based
 
 ### 🔐 Authentication & Authorization
 - **JWT-based authentication** with secure token management
-- **Role-based access control (RBAC)** with three roles:
-  - **Admin**: Full CRUD access to all resources
-  - **Editor**: Can create and edit universities
-  - **Viewer**: Read-only access
+- **Role-based access control (RBAC)** with two roles:
+  - **Admin**: Full CRUD access to all resources including user management
+  - **Viewer**: Read-only access to university data
 - **Password encryption** using bcrypt with salt rounds
 - **Rate limiting** on authentication endpoints to prevent brute force attacks
 - **Session management** with automatic token refresh
@@ -301,7 +300,7 @@ GET /api/universities/:id
 Authorization: Bearer <token>
 ```
 
-#### Create University (Admin/Editor only)
+#### Create University (Admin only)
 ```http
 POST /api/universities
 Authorization: Bearer <token>
@@ -320,7 +319,7 @@ Content-Type: application/json
 }
 ```
 
-#### Update University (Admin/Editor only)
+#### Update University (Admin only)
 ```http
 PUT /api/universities/:id
 Authorization: Bearer <token>
@@ -382,8 +381,7 @@ Content-Type: application/json
 2. **Login** with your credentials
 3. **Test role-based access**:
    - Viewer: Can only view universities
-   - Editor: Can create and edit universities
-   - Admin: Full CRUD access + user management
+   - Admin: Full CRUD access on universities + user management
 
 ### API Testing with Postman/Thunder Client
 
@@ -393,15 +391,15 @@ Import the following environment variables:
 
 ## 🎯 Role-Based Permissions
 
-| Feature | Viewer | Editor | Admin |
-|---------|--------|--------|-------|
-| View Universities | ✅ | ✅ | ✅ |
-| Create University | ❌ | ✅ | ✅ |
-| Edit University | ❌ | ✅ | ✅ |
-| Delete University | ❌ | ❌ | ✅ |
-| View Users | ❌ | ❌ | ✅ |
-| Update User Roles | ❌ | ❌ | ✅ |
-| Delete Users | ❌ | ❌ | ✅ |
+| Feature | Viewer | Admin |
+|---------|--------|-------|
+| View Universities | ✅ | ✅ |
+| Create University | ❌ | ✅ |
+| Edit University | ❌ | ✅ |
+| Delete University | ❌ | ✅ |
+| View Users | ❌ | ✅ |
+| Update User Roles | ❌ | ✅ |
+| Delete Users | ❌ | ✅ |
 
 ## 🤝 Contributing
 
