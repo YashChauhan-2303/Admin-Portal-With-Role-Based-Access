@@ -238,24 +238,24 @@ const Dashboard = () => {
       {/* Header */}
       <header className="border-b bg-card shadow-soft">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-10 h-10 bg-admin-gradient rounded-lg">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">University Portal</h1>
-                <p className="text-sm text-muted-foreground">Management Dashboard</p>
+                <h1 className="text-lg sm:text-xl font-bold text-foreground">University Portal</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">Management Dashboard</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm">
+            <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
                 <div className="flex items-center space-x-1">
-                  {isAdmin ? <Shield className="w-4 h-4 text-primary" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
-                  <span className="font-medium">{user?.name}</span>
+                  {isAdmin ? <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-primary" /> : <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />}
+                  <span className="font-medium truncate max-w-[100px] sm:max-w-none">{user?.name}</span>
                 </div>
-                <Badge variant={isAdmin ? "default" : "secondary"}>
+                <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs">
                   {user?.role}
                 </Badge>
               </div>
@@ -263,10 +263,10 @@ const Dashboard = () => {
                 variant="outline"
                 size="sm"
                 onClick={logout}
-                className="text-destructive hover:text-destructive"
+                className="text-destructive hover:text-destructive text-xs sm:text-sm"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -279,24 +279,26 @@ const Dashboard = () => {
           {/* Filters and Actions */}
           <Card className="shadow-soft">
             <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <CardTitle className="flex items-center space-x-2">
-                    <UniversityIcon className="w-5 h-5" />
-                    <span>Universities</span>
-                    <Badge variant="secondary">{filteredAndSortedUniversities.length}</Badge>
-                  </CardTitle>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+                      <UniversityIcon className="w-5 h-5" />
+                      <span>Universities</span>
+                      <Badge variant="secondary">{filteredAndSortedUniversities.length}</Badge>
+                    </CardTitle>
+                  </div>
+                  {isAdmin && (
+                    <Button onClick={openCreateModal} className="bg-admin-gradient hover:opacity-90 shadow-soft w-full sm:w-auto">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add University
+                    </Button>
+                  )}
                 </div>
-                {isAdmin && (
-                  <Button onClick={openCreateModal} className="bg-admin-gradient hover:opacity-90 shadow-soft">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add University
-                  </Button>
-                )}
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-3">
                 {/* Search */}
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -309,9 +311,9 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Filters */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Select value={statusFilter} onValueChange={(value: 'all' | 'active' | 'inactive' | 'pending' | 'closed') => setStatusFilter(value)}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                       <Filter className="w-4 h-4 mr-2" />
                       <SelectValue />
                     </SelectTrigger>
@@ -325,7 +327,7 @@ const Dashboard = () => {
                   </Select>
                   
                   <Select value={typeFilter} onValueChange={(value: 'all' | 'public' | 'private' | 'community') => setTypeFilter(value)}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -343,7 +345,97 @@ const Dashboard = () => {
           {/* Universities Table */}
           <Card className="shadow-soft">
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
+              {/* Mobile Card View */}
+              <div className="block md:hidden">
+                {filteredAndSortedUniversities.map((university) => (
+                  <div key={university._id} className="border-b p-4 hover:bg-muted/30 transition-colors">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground text-base">{university.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="capitalize text-xs">
+                              {university.type}
+                            </Badge>
+                            <Badge
+                              variant={university.status === 'active' ? 'default' : 'secondary'}
+                              className={`text-xs ${university.status === 'active' ? 'bg-success' : university.status === 'pending' ? 'bg-yellow-500' : ''}`}
+                            >
+                              {university.status ? university.status.charAt(0).toUpperCase() + university.status.slice(1) : 'Active'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center text-muted-foreground">
+                          <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                          <span className="truncate">{`${university.location.city}, ${university.location.state}`}</span>
+                        </div>
+                        <div className="flex items-center text-muted-foreground">
+                          <Mail className="w-4 h-4 mr-1 flex-shrink-0" />
+                          <span className="truncate text-xs">
+                            {university.contact?.website || university.website || 'No website'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 pt-2">
+                        {isAdmin ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openDetailsModal(university)}
+                              className="flex-1 text-primary"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditModal(university)}
+                              className="flex-1"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openDeleteDialog(university)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openDetailsModal(university)}
+                            className="w-full text-primary"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View Details
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {filteredAndSortedUniversities.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <UniversityIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No universities found</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="border-b bg-muted/50">
                     <tr>

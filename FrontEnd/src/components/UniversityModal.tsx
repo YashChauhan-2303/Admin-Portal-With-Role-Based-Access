@@ -206,16 +206,16 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
+          <DialogTitle className="text-lg sm:text-xl font-semibold">
             {mode === 'create' ? 'Add New University' : 'Edit University'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="name">University Name</Label>
+            <Label htmlFor="name" className="text-sm">University Name</Label>
             <Input
               id="name"
               name="name"
@@ -226,9 +226,9 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label htmlFor="location.city">City</Label>
+              <Label htmlFor="location.city" className="text-sm">City</Label>
               <Input
                 id="location.city"
                 name="location.city"
@@ -239,7 +239,7 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location.state">State</Label>
+              <Label htmlFor="location.state" className="text-sm">State</Label>
               <Input
                 id="location.state"
                 name="location.state"
@@ -252,7 +252,7 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location.country">Country</Label>
+            <Label htmlFor="location.country" className="text-sm">Country</Label>
             <Input
               id="location.country"
               name="location.country"

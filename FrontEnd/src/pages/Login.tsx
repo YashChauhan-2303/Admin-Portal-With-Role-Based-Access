@@ -32,7 +32,12 @@ const Login = () => {
         setError(result.error || 'Login failed');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      // Check if error has retryAfter property
+      if (err && typeof err === 'object' && 'message' in err) {
+        setError(String(err.message));
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoginLoading(false);
     }

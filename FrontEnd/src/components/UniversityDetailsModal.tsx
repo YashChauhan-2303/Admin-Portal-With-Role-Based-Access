@@ -29,27 +29,27 @@ const UniversityDetailsModal: React.FC<UniversityDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-foreground">
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">
             University Details
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="space-y-4 sm:space-y-6 mt-4">
           {/* Header Section */}
           <div className="space-y-2">
             <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground">{university.name}</h2>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="outline" className="capitalize">
+              <div className="flex-1">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground break-words">{university.name}</h2>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <Badge variant="outline" className="capitalize text-xs sm:text-sm">
                     <Building2 className="w-3 h-3 mr-1" />
                     {university.type}
                   </Badge>
                   <Badge
                     variant={university.status === 'active' ? 'default' : 'secondary'}
-                    className={university.status === 'active' ? 'bg-success' : university.status === 'pending' ? 'bg-yellow-500' : ''}
+                    className={`text-xs sm:text-sm ${university.status === 'active' ? 'bg-success' : university.status === 'pending' ? 'bg-yellow-500' : ''}`}
                   >
                     {university.status ? university.status.charAt(0).toUpperCase() + university.status.slice(1) : 'Active'}
                   </Badge>
@@ -72,8 +72,8 @@ const UniversityDetailsModal: React.FC<UniversityDetailsModalProps> = ({
               <MapPin className="w-4 h-4" />
               Location
             </h3>
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="bg-muted/50 rounded-lg p-3 sm:p-4 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">City</p>
                   <p className="text-sm font-medium">{university.location.city}</p>

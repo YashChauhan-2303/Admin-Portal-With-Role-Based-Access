@@ -21,6 +21,7 @@ export interface ApiError {
   success: false;
   message: string;
   errors?: string[];
+  retryAfter?: number; // seconds until retry is allowed
 }
 
 // Token management
@@ -78,6 +79,15 @@ class ApiClient {
         // Extract detailed validation errors if available
         if (data.errors) {
           console.error('Validation Errors:', JSON.stringify(data.errors, null, 2));
+        }
+        
+        // Handle 429 (Too Many Requests) - Rate limiting
+        if (response.status === 429 && data.retryAfter) {
+          const minutes = Math.ceil(data.retryAfter / 60);
+          const errorMessage = `${data.message} Please wait ${minutes} minute${minutes > 1 ? 's' : ''} before trying again.`;
+          const error = new Error(errorMessage) as Error & { retryAfter?: number };
+          error.retryAfter = data.retryAfter;
+          throw error;
         }
         
         // Handle 401 (Unauthorized) - try to refresh token
