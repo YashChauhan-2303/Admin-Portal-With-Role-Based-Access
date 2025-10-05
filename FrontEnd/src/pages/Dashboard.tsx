@@ -35,7 +35,7 @@ const Dashboard = () => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Active' | 'Inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'pending' | 'closed'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'public' | 'private' | 'community'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'location' | 'type' | 'createdAt'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -302,15 +302,17 @@ const Dashboard = () => {
                 
                 {/* Filters */}
                 <div className="flex gap-2">
-                  <Select value={statusFilter} onValueChange={(value: 'all' | 'Active' | 'Inactive') => setStatusFilter(value)}>
+                  <Select value={statusFilter} onValueChange={(value: 'all' | 'active' | 'inactive' | 'pending' | 'closed') => setStatusFilter(value)}>
                     <SelectTrigger className="w-32">
                       <Filter className="w-4 h-4 mr-2" />
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
                     </SelectContent>
                   </Select>
                   
@@ -393,15 +395,17 @@ const Dashboard = () => {
                         <td className="p-4">
                           <div className="flex items-center space-x-1 text-muted-foreground">
                             <Mail className="w-4 h-4" />
-                            <span className="text-sm">{university.website || 'No website'}</span>
+                            <span className="text-sm">
+                              {university.contact?.website || university.website || 'No website'}
+                            </span>
                           </div>
                         </td>
                         <td className="p-4">
                           <Badge
-                            variant={university.status === 'Active' ? 'default' : 'secondary'}
-                            className={university.status === 'Active' ? 'bg-success' : ''}
+                            variant={university.status === 'active' ? 'default' : 'secondary'}
+                            className={university.status === 'active' ? 'bg-success' : university.status === 'pending' ? 'bg-yellow-500' : ''}
                           >
-                            {university.status || 'Active'}
+                            {university.status ? university.status.charAt(0).toUpperCase() + university.status.slice(1) : 'Active'}
                           </Badge>
                         </td>
                         {isAdmin && (

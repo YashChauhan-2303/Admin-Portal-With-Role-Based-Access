@@ -31,6 +31,7 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
     },
     founded: new Date().getFullYear(),
     type: 'public',
+    status: 'active',
     enrollment: {
       undergraduate: 0,
       graduate: 0,
@@ -52,6 +53,7 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
         location: university.location,
         founded: university.founded || university.established || new Date().getFullYear(),
         type: university.type,
+        status: university.status || 'active',
         enrollment: university.enrollment,
         website: university.contact?.website || university.website || '',
         description: university.description || '',
@@ -71,6 +73,7 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
         },
         founded: new Date().getFullYear(),
         type: 'public',
+        status: 'active',
         enrollment: {
           undergraduate: 0,
           graduate: 0,
@@ -291,6 +294,24 @@ const UniversityModal: React.FC<UniversityModalProps> = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => handleSelectChange('status', value as 'active' | 'inactive' | 'pending' | 'closed')}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

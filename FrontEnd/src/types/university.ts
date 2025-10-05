@@ -46,7 +46,7 @@ export interface University {
       email?: string;
     };
   };
-  status?: 'Active' | 'Inactive'; // Optional since backend may not have this field
+  status?: 'active' | 'inactive' | 'pending' | 'closed';
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
@@ -66,6 +66,7 @@ export interface CreateUniversityData extends Record<string, unknown> {
   founded?: number; // Backend uses 'founded'
   established?: number; // For backward compatibility
   type: 'public' | 'private' | 'community';
+  status?: 'active' | 'inactive' | 'pending' | 'closed';
   enrollment: {
     undergraduate: number;
     graduate: number;

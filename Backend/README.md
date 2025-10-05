@@ -141,7 +141,7 @@ The system comes with default users for testing:
   "success": false,
   "message": "Error message"
 }
-```.
+```
 
 ### Pagination Response
 ```json
