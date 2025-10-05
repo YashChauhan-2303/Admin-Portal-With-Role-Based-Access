@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Mail, Lock, User, UserCheck } from 'lucide-react';
+import { Shield, Mail, Lock, User, UserCheck, Eye, EyeOff } from 'lucide-react';
 
 const SignUp = () => {
-  const { user, register, isLoading } = useAuth(); // 👈 use register instead of login
+  const { user, register, isLoading } = useAuth();
   const location = useLocation();
   const [formData, setFormData] = useState({ 
     name: '', 
@@ -21,6 +21,43 @@ const SignUp = () => {
   });
   const [error, setError] = useState('');
   const [signupLoading, setSignupLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const vantaRef = useRef<HTMLDivElement>(null);
+  const vantaEffect = useRef<any>(null);
+
+  // Initialize Vanta.js effect with callback ref
+  const setVantaRefCallback = React.useCallback((node: HTMLDivElement | null) => {
+    if (node && !vantaEffect.current) {
+      // Dynamically import Vanta and Three.js
+      Promise.all([
+        import('vanta/dist/vanta.net.min'),
+        import('three')
+      ]).then(([VANTA, THREE]) => {
+        if (node && !vantaEffect.current) {
+          vantaEffect.current = (VANTA as any).default({
+            el: node,
+            THREE: THREE,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3b82f6,
+            backgroundColor: 0x0f172a,
+            points: 10.00,
+            maxDistance: 20.00,
+            spacing: 15.00,
+            showDots: true
+          });
+        }
+      }).catch(err => {
+        console.error('Failed to load Vanta:', err);
+      });
+    }
+  }, []);
 
   // Redirect if already logged in
   if (user) {
@@ -78,15 +115,15 @@ const SignUp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/30 to-primary/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div ref={setVantaRefCallback} className="min-h-screen flex items-center justify-center p-4 relative">
+      <div className="w-full max-w-md space-y-6 relative z-10">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-admin-gradient rounded-2xl shadow-medium mb-4">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Create Account</h1>
-          <p className="text-muted-foreground">Sign up to access the Admin Portal</p>
+          <h1 className="text-3xl font-bold text-white drop-shadow-lg">Create Account</h1>
+          <p className="text-gray-200 drop-shadow-md">Sign up to access the Admin Portal</p>
         </div>
 
         {/* Sign Up Card */}
@@ -149,13 +186,24 @@ const SignUp = () => {
                   <Input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Enter password"
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -167,13 +215,24 @@ const SignUp = () => {
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="Re-enter password"
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -226,11 +285,11 @@ const SignUp = () => {
 
         {/* Login Link */}
         <div className="text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-200 drop-shadow-md">
             Already have an account?{' '}
             <a 
               href="/login" 
-              className="font-medium text-primary hover:underline"
+              className="font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors"
             >
               Sign in here
             </a>
