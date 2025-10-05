@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UniversityModal from '@/components/UniversityModal';
+import UniversityDetailsModal from '@/components/UniversityDetailsModal';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import {
   Plus,
@@ -47,6 +48,8 @@ const Dashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [universityToDelete, setUniversityToDelete] = useState<University | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [universityToView, setUniversityToView] = useState<University | null>(null);
 
   const loadUniversities = useCallback(async () => {
     try {
@@ -201,6 +204,11 @@ const Dashboard = () => {
   const openDeleteDialog = (university: University) => {
     setUniversityToDelete(university);
     setDeleteDialogOpen(true);
+  };
+
+  const openDetailsModal = (university: University) => {
+    setUniversityToView(university);
+    setDetailsModalOpen(true);
   };
 
   const handleSort = (field: typeof sortBy) => {
@@ -374,7 +382,7 @@ const Dashboard = () => {
                       </th>
                       <th className="text-left p-4">Contact</th>
                       <th className="text-left p-4">Status</th>
-                      {isAdmin && <th className="text-left p-4">Actions</th>}
+                      <th className="text-left p-4">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -408,9 +416,17 @@ const Dashboard = () => {
                             {university.status ? university.status.charAt(0).toUpperCase() + university.status.slice(1) : 'Active'}
                           </Badge>
                         </td>
-                        {isAdmin && (
+                        {isAdmin ? (
                           <td className="p-4">
                             <div className="flex items-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openDetailsModal(university)}
+                                className="text-primary"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -427,6 +443,18 @@ const Dashboard = () => {
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
+                          </td>
+                        ) : (
+                          <td className="p-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openDetailsModal(university)}
+                              className="text-primary"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
                           </td>
                         )}
                       </tr>
@@ -447,6 +475,12 @@ const Dashboard = () => {
       </main>
 
       {/* Modals */}
+      <UniversityDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        university={universityToView}
+      />
+      
       {isAdmin && (
         <>
           <UniversityModal
