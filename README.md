@@ -6,20 +6,6 @@ A full-stack web application for managing university data with secure role-based
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![React](https://img.shields.io/badge/react-18.3.1-blue)
 
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Security Features](#security-features)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## ✨ Features
 
 ### 🔐 Authentication & Authorization
